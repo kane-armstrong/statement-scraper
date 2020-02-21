@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\Content\CardAccounts\TdvCardAccountSample.tdv" />
+    <None Remove="Resources\Content\TdvDepositAccountSample.tdv" />
+    <None Remove="Resources\Content\TdvDepositAccountSample_bad-bank.tdv" />
+    <None Remove="Resources\Content\TdvDepositAccountSample_bad-branch.tdv" />
+    <None Remove="Resources\Content\TdvDepositAccountSample_bad-transaction-amount.tdv" />
+    <None Remove="Resources\Content\TdvDepositAccountSample_bad-transaction-date.tdv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Content\CardAccounts\TdvCardAccountSample.tdv" />
+    <EmbeddedResource Include="Resources\Content\DepositAccounts\TdvDepositAccountSample_bad-transaction-amount.tdv" />
+    <EmbeddedResource Include="Resources\Content\DepositAccounts\TdvDepositAccountSample_bad-transaction-date.tdv" />
+    <EmbeddedResource Include="Resources\Content\DepositAccounts\TdvDepositAccountSample_bad-branch.tdv" />
+    <EmbeddedResource Include="Resources\Content\DepositAccounts\TdvDepositAccountSample_bad-bank.tdv" />
+    <EmbeddedResource Include="Resources\Content\DepositAccounts\TdvDepositAccountSample.tdv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="5.9.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Pedantic.IO.EmbeddedResource" Version="0.9.0-pre-02" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\StatementDeserializer\StatementDeserializer.csproj" />
+  </ItemGroup>
+</Project>

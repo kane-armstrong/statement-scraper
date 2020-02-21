@@ -1,0 +1,9 @@
+Created date / time : 2 January 2019 / 14:30:22
+Bank 12; Branch 3085; Account 0000000-00 (AccountName)
+From date 20120102
+To date 20190102
+Avail Bal : 123.45 as of 20190102
+Ledger Balance : 123.45 as of 20190102
+Date	Unique Id	Tran Type	Cheque Number	Payee	Memo	Amount
+
+oops	2012010201	BANK FEE		"DAMN BANKS AND THEIR FEES"	""	-2.40
