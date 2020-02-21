@@ -18,7 +18,7 @@ namespace StatementDeserializer.UnitTests.DepositAccountStatementDeserializerSpe
         public void identifies_account_number_correctly()
         {
             // +Arrange
-            const string expectedNumber = "00-0000-0000000-00";
+            const string expectedNumber = "99-9999-0000000-00-AccountName";
 
             // +Assert
             _fixture.Snapshot.Should().NotBeNull();
