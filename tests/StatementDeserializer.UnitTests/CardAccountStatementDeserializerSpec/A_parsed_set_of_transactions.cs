@@ -57,7 +57,6 @@ namespace StatementDeserializer.UnitTests.CardAccountStatementDeserializerSpec
             _fixture.Snapshot.Transactions.Count(x => x.TransactionDate == expectedDate).Should().Be(expectedOccurrences);
         }
 
-
         [Theory]
         [InlineData("2019091001")]
         [InlineData("2019091002")]

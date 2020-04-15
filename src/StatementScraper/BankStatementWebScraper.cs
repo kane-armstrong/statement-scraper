@@ -15,7 +15,6 @@ using System.Web;
 
 namespace StatementScraper
 {
-
     public class BankStatementWebScraper : IBankStatementWebScraper, IAsyncDisposable, IDisposable
     {
         private readonly Guid _diagnosticsSessionId = Guid.NewGuid();
