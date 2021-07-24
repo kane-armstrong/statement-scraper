@@ -75,7 +75,7 @@ namespace StatementScraper.Pages
                     Timeout = 5000
                 });
 
-                var failureReason = DetermineExportFailureReason(account);
+                var failureReason = DetermineExportFailureReason();
                 return DownloadResult.Failed(failureReason);
             }
             catch (TimeoutException)
@@ -89,14 +89,14 @@ namespace StatementScraper.Pages
             }
             catch (Exception)
             {
-                var failureReason = DetermineExportFailureReason(account);
+                var failureReason = DetermineExportFailureReason();
                 return DownloadResult.Failed(failureReason);
             }
 
             return DownloadResult.Success;
         }
 
-        private string DetermineExportFailureReason(Account account)
+        private string DetermineExportFailureReason()
         {
             var uri = new Uri(_page.Url);
             var pageReportedError = HttpUtility.ParseQueryString(uri.Query).AllKeys.Any(x => x.Equals("failedExport", StringComparison.InvariantCultureIgnoreCase));
