@@ -16,13 +16,10 @@ namespace StatementScraper.Pages
             _page = page;
         }
 
-        public async Task BrowseTo()
+        public async Task<BalancesPage> Login(string username, string password)
         {
             await _page.GoToAsync(Address);
-        }
 
-        public async Task Login(string username, string password)
-        {
             var usernameInput = await _page.GetElement(ElementSelectors.UserNameInput);
             await usernameInput.TypeAsync(username);
 
@@ -41,6 +38,8 @@ namespace StatementScraper.Pages
             {
                 throw new Exception("Invalid username or password");
             }
+
+            return new BalancesPage(_page);
         }
     }
 }
