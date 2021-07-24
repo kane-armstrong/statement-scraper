@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PuppeteerSharp;
 using StatementScraper.Extensions;
+using StatementScraper.Pages;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,9 +22,10 @@ namespace StatementScraper
         private readonly BankStatementWebScraperOptions _options;
         private readonly ILogger<BankStatementWebScraper> _logger;
         private readonly bool _takeScreenshots;
-        private readonly string _loginUrl;
         private readonly string _selectedExportFormat;
         private readonly string? _screenshotOutputPath;
+
+        private LoginPage _loginPage;
 
         private readonly string _downloadPath;
 
@@ -42,9 +44,6 @@ namespace StatementScraper
 
             Guard.AgainstNullOrEmpty(options.Value.UserName, nameof(BankStatementWebScraperOptions.UserName));
             Guard.AgainstNullOrEmpty(options.Value.Password, nameof(BankStatementWebScraperOptions.Password));
-
-            Guard.AgainstNullOrEmpty(options.Value.LoginUrl, nameof(BankStatementWebScraperOptions.LoginUrl));
-            _loginUrl = options.Value.LoginUrl;
 
             if (options.Value.CollectScreenShotDiagnostics)
             {
@@ -91,34 +90,8 @@ namespace StatementScraper
             _logger.LogDebug("Download path set to {downloadPath}", _downloadPath);
 
             await _page.SetDownloadPath(_downloadPath);
-        }
 
-        private async Task Login()
-        {
-            await _page.GoToAsync(_loginUrl);
-
-            await TakeScreenshotIfEnabled("Login - before logging in");
-
-            var usernameInput = await _page.GetElement(ElementSelectors.UserNameInput);
-            await usernameInput.TypeAsync(_options.UserName);
-
-            var passwordInput = await _page.GetElement(ElementSelectors.PasswordInput);
-            await passwordInput.TypeAsync(_options.Password);
-
-            var loginButton = await _page.GetElement(ElementSelectors.LoginButton);
-            await loginButton.ClickAsync();
-            await _page.WaitForNavigationAsync(new NavigationOptions
-            {
-                Timeout = 5000
-            });
-
-            var loginButtonAgain = await _page.GetElementOrDefault(ElementSelectors.LoginButton);
-            if (loginButtonAgain != null)
-            {
-                throw new Exception("Invalid username or password");
-            }
-
-            await TakeScreenshotIfEnabled("Login - after logging in");
+            _loginPage = new LoginPage(_page);
         }
 
         private async Task NavigateToStatementExportPage()
@@ -152,7 +125,8 @@ namespace StatementScraper
                     return;
 
                 _loggedIn = false;
-                await Login();
+                await _loginPage.BrowseTo();
+                await _loginPage.Login(_options.UserName, _options.Password);
 
                 return;
             }
@@ -160,7 +134,10 @@ namespace StatementScraper
             if (!Initialized)
                 await Initialize();
             if (!_loggedIn)
-                await Login();
+            {
+                await _loginPage.BrowseTo();
+                await _loginPage.Login(_options.UserName, _options.Password);
+            }
 
             await NavigateToStatementExportPage();
         }

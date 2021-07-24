@@ -2,7 +2,6 @@
 {
     public class BankStatementWebScraperOptions
     {
-        public string LoginUrl { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public bool CollectScreenShotDiagnostics { get; set; }
