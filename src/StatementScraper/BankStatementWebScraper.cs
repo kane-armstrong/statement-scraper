@@ -23,7 +23,7 @@ namespace StatementScraper
 
         private async Task<ExportStatementPage> LoadExportStatementsPage()
         {
-            await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
+            await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultChromiumRevision);
             _browser = await Puppeteer.LaunchAsync(new LaunchOptions { Headless = true });
             _page = await _browser.NewPageAsync();
             await _page.SetDownloadPath(_options.DownloadPath);
