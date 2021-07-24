@@ -9,37 +9,60 @@ using System.Threading.Tasks;
 
 namespace StatementScraper
 {
-    public class BankStatementWebScraper : IBankStatementWebScraper
+    public class BankStatementWebScraper : IBankStatementWebScraper, IAsyncDisposable, IDisposable
     {
         private readonly BankStatementWebScraperOptions _options;
+        private Browser? _browser;
+        private Page? _page;
+        private ExportStatementPage? _exportStatementsPage;
 
         public BankStatementWebScraper(IOptions<BankStatementWebScraperOptions> options)
         {
             _options = options.Value;
         }
 
-        public async Task<IEnumerable<ScrapedAccount>> GetAccounts()
+        private async Task<ExportStatementPage> LoadExportStatementsPage()
         {
             await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
-            await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions { Headless = true });
-            await using var page = await browser.NewPageAsync();
-            await page.SetDownloadPath(_options.DownloadPath);
-            var loginPage = new LoginPage(page);
+            _browser = await Puppeteer.LaunchAsync(new LaunchOptions { Headless = true });
+            _page = await _browser.NewPageAsync();
+            await _page.SetDownloadPath(_options.DownloadPath);
+            var loginPage = new LoginPage(_page);
             var balancesPage = await loginPage.Login(_options.UserName, _options.Password);
-            var exportStatementsPage = await balancesPage.GoToExportStatementPage();
-            return await exportStatementsPage.ListAccounts();
+            return await balancesPage.GoToExportStatementPage();
+        }
+
+        public async Task<IEnumerable<ScrapedAccount>> GetAccounts()
+        {
+            if (_exportStatementsPage == null)
+            {
+                _exportStatementsPage = await LoadExportStatementsPage();
+            }
+            return await _exportStatementsPage.ListAccounts();
         }
 
         public async Task<DownloadResult> DownloadStatement(Account account, DateTimeOffset start, DateTimeOffset end)
         {
-            await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
-            await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions { Headless = true });
-            await using var page = await browser.NewPageAsync();
-            await page.SetDownloadPath(_options.DownloadPath);
-            var loginPage = new LoginPage(page);
-            var balancesPage = await loginPage.Login(_options.UserName, _options.Password);
-            var exportStatementsPage = await balancesPage.GoToExportStatementPage();
-            return await exportStatementsPage.DownloadStatement(account, start, end, _options.ExportFormat);
+            if (_exportStatementsPage == null)
+            {
+                _exportStatementsPage = await LoadExportStatementsPage();
+            }
+
+            return await _exportStatementsPage.DownloadStatement(account, start, end, _options.ExportFormat);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_page == null) return;
+            await _page.DisposeAsync();
+            if (_browser == null) return;
+            await _browser.DisposeAsync();
+        }
+
+        public void Dispose()
+        {
+            _browser?.Dispose();
+            _page?.Dispose();
         }
     }
 }
