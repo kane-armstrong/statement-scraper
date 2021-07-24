@@ -82,7 +82,7 @@ namespace StatementScraper.Pages
             {
                 // swallowed on purpose, we will only end up here if statement export was successful
             }
-            catch (WaitTaskTimeoutException e)
+            catch (WaitTaskTimeoutException)
             {
                 // Hit an error, but page took too long to report it
                 return DownloadResult.Failed("Timeout");
