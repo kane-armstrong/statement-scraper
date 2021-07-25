@@ -14,7 +14,7 @@ namespace StatementScraper.Extensions
         public static string StripIllegalCharacters(this string input) =>
             IllegalCharacters.Aggregate(input, (current, c) => current.Replace(c.ToString(), ""));
 
-        public static string Caesar(this string source, short shift)
+        public static string Garble(this string source, short shift)
         {
             var max = Convert.ToInt32(char.MaxValue);
             var min = Convert.ToInt32(char.MinValue);

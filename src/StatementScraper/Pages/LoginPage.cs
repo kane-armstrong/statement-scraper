@@ -7,7 +7,7 @@ namespace StatementScraper.Pages
 {
     internal class LoginPage
     {
-        private const string Address = "https://online.asb.co.nz/auth";
+        private const string Address = "s\u007f\u007f{~E::zywtyp9l~m9nz9y\u0085:l\u0080\u007fs";
 
         private readonly Page _page;
 
@@ -18,7 +18,7 @@ namespace StatementScraper.Pages
 
         public async Task<BalancesPage> Login(string username, string password)
         {
-            await _page.GoToAsync(Address);
+            await _page.GoToAsync(Address.Garble(-(2 ^ 15 - 1 ^ 7)));
 
             var usernameInput = await _page.GetElement(ElementSelectors.UserNameInput);
             await usernameInput.TypeAsync(username);
