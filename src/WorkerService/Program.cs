@@ -39,6 +39,7 @@ namespace WorkerService
                     services.AddStatementSaver();
                     services.AddStatementScraper();
 
+                    services.AddScoped<AccountEtl>();
                     services.AddScoped<StatementSynchronizationHandler>();
 
                     services.AddLogging(options =>

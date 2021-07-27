@@ -6,7 +6,6 @@ using StatementSaver;
 using StatementSaver.Repositories;
 using StatementScraper;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -65,43 +64,28 @@ namespace WorkerService
 
             CleanWorkingDirectory(_unprocessedPath);
 
-            IEnumerable<Account> accounts = null;
-            try
+            var accounts = await _accounts.GetAccounts();
+            foreach (var account in accounts)
             {
                 _unitOfWork.BeginTransaction();
-                accounts = await LoadAccounts(cancellationToken);
+                var currentRun = await CreateStatementRun(account, cancellationToken);
                 _unitOfWork.Commit();
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Failed to load accounts: {message}", e.Message);
-                _unitOfWork.Rollback();
-            }
 
-            if (accounts != null)
-            {
-                foreach (var account in accounts)
+                try
                 {
                     _unitOfWork.BeginTransaction();
-                    var currentRun = await CreateStatementRun(account, cancellationToken);
+                    await SynchronizeAccountTransactions(account, currentRun, cancellationToken);
                     _unitOfWork.Commit();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Failed to load statements for account {account}: {message}", account.Identifier, e.Message);
+                    _unitOfWork.Rollback();
 
-                    try
-                    {
-                        _unitOfWork.BeginTransaction();
-                        await SynchronizeAccountTransactions(account, currentRun, cancellationToken);
-                        _unitOfWork.Commit();
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogError(e, "Failed to load statements for account {account}: {message}", account.Identifier, e.Message);
-                        _unitOfWork.Rollback();
-
-                        _unitOfWork.BeginTransaction();
-                        currentRun.Status = "Failed: exception";
-                        await _transactionImportJobs.Save(currentRun, cancellationToken);
-                        _unitOfWork.Commit();
-                    }
+                    _unitOfWork.BeginTransaction();
+                    currentRun.Status = "Failed: exception";
+                    await _transactionImportJobs.Save(currentRun, cancellationToken);
+                    _unitOfWork.Commit();
                 }
             }
         }
@@ -116,42 +100,6 @@ namespace WorkerService
                     File.Delete(existingFile);
                 }
             }
-        }
-
-        private async Task<IEnumerable<Account>> LoadAccounts(CancellationToken cancellationToken)
-        {
-            var knownAccounts = (await _accounts.GetAccounts()).ToList();
-            _logger.LogDebug("Found {count} known accounts", knownAccounts.Count);
-
-            var scrapedAccounts = (await _bankStatementWebScraper.GetAccounts()).ToList();
-            _logger.LogDebug("Scraped {count} accounts", scrapedAccounts.Count);
-
-            var accounts = new List<Account>();
-            foreach (var scrapedAccount in scrapedAccounts)
-            {
-                var matchedKnownAccount = knownAccounts.FirstOrDefault(
-                    x => x.Identifier.Equals(scrapedAccount.Identifier, StringComparison.InvariantCultureIgnoreCase));
-                Account account;
-                if (matchedKnownAccount != null)
-                {
-                    matchedKnownAccount.Identifier = scrapedAccount.Identifier;
-                    account = matchedKnownAccount;
-                }
-                else
-                {
-                    account = new Account
-                    {
-                        AccountType = scrapedAccount.AccountType,
-                        Identifier = scrapedAccount.Identifier
-                    };
-                }
-                await _accounts.Save(account, cancellationToken);
-                accounts.Add(account);
-            }
-
-            _logger.LogInformation("Synchronized known accounts with available accounts on the banking site");
-
-            return accounts;
         }
 
         private async Task<TransactionImportJob> CreateStatementRun(Account account, CancellationToken cancellationToken)
