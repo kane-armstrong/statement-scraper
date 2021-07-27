@@ -48,13 +48,11 @@ namespace WorkerService
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _options = options.Value ?? throw new ArgumentNullException(nameof(options));
 
-            Guard.AgainstNullOrEmpty(options.Value.UnprocessedStatementDirectory, nameof(options.Value.UnprocessedStatementDirectory));
-            _unprocessedPath = options.Value.UnprocessedStatementDirectory;
+            _unprocessedPath = options.Value.UnprocessedStatementDirectory ?? throw new ArgumentNullException(nameof(options.Value.UnprocessedStatementDirectory));
             if (!Directory.Exists(_unprocessedPath))
                 Directory.CreateDirectory(_unprocessedPath);
 
-            Guard.AgainstNullOrEmpty(options.Value.ProcessedStatementDirectory, nameof(options.Value.ProcessedStatementDirectory));
-            _processedPath = options.Value.ProcessedStatementDirectory;
+            _processedPath = options.Value.ProcessedStatementDirectory ?? throw new ArgumentNullException(nameof(options.Value.ProcessedStatementDirectory));
             if (!Directory.Exists(_processedPath))
                 Directory.CreateDirectory(_processedPath);
 
@@ -181,7 +179,7 @@ namespace WorkerService
 
             var exportedStatement = await _bankStatementWebScraper.DownloadStatement(account, currentRun.FromDate, currentRun.ToDate);
             currentRun.Status = exportedStatement.StatusMessage;
-            
+
             if (!exportedStatement.Successful)
             {
                 _logger.LogWarning("Failed to download statement for {account} for the period {start} to {end}. Reason: {reason}",

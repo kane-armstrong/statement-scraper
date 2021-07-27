@@ -1,4 +1,4 @@
-﻿using Contracts;
+﻿using System;
 
 namespace StatementScraper
 {
@@ -10,8 +10,7 @@ namespace StatementScraper
         internal DownloadResult(bool successful, string statusMessage)
         {
             Successful = successful;
-            Guard.AgainstNullOrEmpty(statusMessage, nameof(statusMessage));
-            StatusMessage = statusMessage;
+            StatusMessage = statusMessage ?? throw new ArgumentNullException(nameof(statusMessage));
         }
 
         public static DownloadResult Success => new DownloadResult(true, "Successful");
