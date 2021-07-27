@@ -11,7 +11,7 @@ namespace StatementDeserializer
                 throw new ArgumentNullException(nameof(services));
             services.AddSingleton<IStatementDeserializer, CardAccountStatementDeserializer>();
             services.AddSingleton<IStatementDeserializer, DepositAccountStatementDeserializer>();
-            services.AddSingleton<ITransactionsSnapshotGenerator, TransactionsSnapshotGenerator>();
+            services.AddSingleton<IStatementFactory, StatementFactory>();
             return services;
         }
     }

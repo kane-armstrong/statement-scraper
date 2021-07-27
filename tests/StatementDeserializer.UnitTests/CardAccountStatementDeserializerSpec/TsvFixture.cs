@@ -4,12 +4,12 @@ namespace StatementDeserializer.UnitTests.CardAccountStatementDeserializerSpec
 {
     public class TsvFixture
     {
-        public readonly TransactionsSnapshot Snapshot;
+        public readonly Statement Statement;
 
         public TsvFixture()
         {
             var sut = new CardAccountStatementDeserializer();
-            Snapshot = sut.DeserializeTdv(SampleCardAccountReports.BasicTdv);
+            Statement = sut.DeserializeTdv(SampleCardAccountReports.BasicTdv);
         }
     }
 }

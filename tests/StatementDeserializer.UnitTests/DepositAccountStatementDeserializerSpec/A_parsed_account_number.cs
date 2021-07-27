@@ -21,9 +21,9 @@ namespace StatementDeserializer.UnitTests.DepositAccountStatementDeserializerSpe
             const string expectedNumber = "99-9999-0000000-00-AccountName";
 
             // +Assert
-            _fixture.Snapshot.Should().NotBeNull();
-            _fixture.Snapshot.CardOrAccountNumber.Should().NotBeNull();
-            _fixture.Snapshot.CardOrAccountNumber.Should().Be(expectedNumber);
+            _fixture.Statement.Should().NotBeNull();
+            _fixture.Statement.CardOrAccountNumber.Should().NotBeNull();
+            _fixture.Statement.CardOrAccountNumber.Should().Be(expectedNumber);
         }
 
         [Fact]

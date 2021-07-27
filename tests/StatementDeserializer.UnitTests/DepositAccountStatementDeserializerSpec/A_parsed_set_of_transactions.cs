@@ -23,18 +23,18 @@ namespace StatementDeserializer.UnitTests.DepositAccountStatementDeserializerSpe
             const int expectedNumberOfTransactions = 5;
 
             // +Assert
-            _fixture.Snapshot.Should().NotBeNull();
-            _fixture.Snapshot.Transactions.Should().NotBeNullOrEmpty();
-            _fixture.Snapshot.Transactions.Count.Should().Be(expectedNumberOfTransactions);
+            _fixture.Statement.Should().NotBeNull();
+            _fixture.Statement.Transactions.Should().NotBeNullOrEmpty();
+            _fixture.Statement.Transactions.Count.Should().Be(expectedNumberOfTransactions);
         }
 
         [Fact]
         public void does_not_contain_any_silent_parsing_failures()
         {
             // +Assert
-            _fixture.Snapshot.Should().NotBeNull();
-            _fixture.Snapshot.Transactions.Should().NotBeNullOrEmpty();
-            _fixture.Snapshot.Transactions.Should().NotContainNulls();
+            _fixture.Statement.Should().NotBeNull();
+            _fixture.Statement.Transactions.Should().NotBeNullOrEmpty();
+            _fixture.Statement.Transactions.Should().NotContainNulls();
         }
 
         private static readonly DateTimeFormatInfo DefaultDateTimeFormat = new DateTimeFormatInfo
@@ -54,9 +54,9 @@ namespace StatementDeserializer.UnitTests.DepositAccountStatementDeserializerSpe
             var expectedDate = DateTimeOffset.Parse(dateText, DefaultDateTimeFormat);
 
             // +Assert
-            _fixture.Snapshot.Should().NotBeNull();
-            _fixture.Snapshot.Transactions.Should().NotBeNullOrEmpty();
-            _fixture.Snapshot.Transactions.Select(x => x.TransactionDate).Should().Contain(expectedDate);
+            _fixture.Statement.Should().NotBeNull();
+            _fixture.Statement.Transactions.Should().NotBeNullOrEmpty();
+            _fixture.Statement.Transactions.Select(x => x.TransactionDate).Should().Contain(expectedDate);
         }
 
         [Theory]
@@ -68,9 +68,9 @@ namespace StatementDeserializer.UnitTests.DepositAccountStatementDeserializerSpe
         public void identifies_unique_id_correctly_for_all_transactions(string uniqueId)
         {
             // +Assert
-            _fixture.Snapshot.Should().NotBeNull();
-            _fixture.Snapshot.Transactions.Should().NotBeNullOrEmpty();
-            _fixture.Snapshot.Transactions.Select(x => x.UniqueId).Should().Contain(uniqueId);
+            _fixture.Statement.Should().NotBeNull();
+            _fixture.Statement.Transactions.Should().NotBeNullOrEmpty();
+            _fixture.Statement.Transactions.Select(x => x.UniqueId).Should().Contain(uniqueId);
         }
 
         [Theory]
@@ -80,9 +80,9 @@ namespace StatementDeserializer.UnitTests.DepositAccountStatementDeserializerSpe
         public void identifies_transaction_type_correctly_for_all_transactions(string transactionType, int expectedCount)
         {
             // +Assert
-            _fixture.Snapshot.Should().NotBeNull();
-            _fixture.Snapshot.Transactions.Should().NotBeNullOrEmpty();
-            _fixture.Snapshot.Transactions.Count(x => x.TransactionType == transactionType).Should().Be(expectedCount);
+            _fixture.Statement.Should().NotBeNull();
+            _fixture.Statement.Transactions.Should().NotBeNullOrEmpty();
+            _fixture.Statement.Transactions.Count(x => x.TransactionType == transactionType).Should().Be(expectedCount);
         }
 
         [Theory]
@@ -92,9 +92,9 @@ namespace StatementDeserializer.UnitTests.DepositAccountStatementDeserializerSpe
         public void identifies_payee_correctly_for_all_transactions(string payee, int expectedCount)
         {
             // +Assert
-            _fixture.Snapshot.Should().NotBeNull();
-            _fixture.Snapshot.Transactions.Should().NotBeNullOrEmpty();
-            _fixture.Snapshot.Transactions.Count(x => x.Payee == payee).Should().Be(expectedCount);
+            _fixture.Statement.Should().NotBeNull();
+            _fixture.Statement.Transactions.Should().NotBeNullOrEmpty();
+            _fixture.Statement.Transactions.Count(x => x.Payee == payee).Should().Be(expectedCount);
         }
 
         [Theory]
@@ -105,9 +105,9 @@ namespace StatementDeserializer.UnitTests.DepositAccountStatementDeserializerSpe
         public void identifies_memo_correctly_for_all_transactions(string memo, int expectedCount)
         {
             // +Assert
-            _fixture.Snapshot.Should().NotBeNull();
-            _fixture.Snapshot.Transactions.Should().NotBeNullOrEmpty();
-            _fixture.Snapshot.Transactions.Count(x => x.Description == memo).Should().Be(expectedCount);
+            _fixture.Statement.Should().NotBeNull();
+            _fixture.Statement.Transactions.Should().NotBeNullOrEmpty();
+            _fixture.Statement.Transactions.Count(x => x.Description == memo).Should().Be(expectedCount);
         }
 
         [Theory]
@@ -119,9 +119,9 @@ namespace StatementDeserializer.UnitTests.DepositAccountStatementDeserializerSpe
         public void identifies_amount_correctly_for_all_transactions(decimal amount)
         {
             // +Assert
-            _fixture.Snapshot.Should().NotBeNull();
-            _fixture.Snapshot.Transactions.Should().NotBeNullOrEmpty();
-            _fixture.Snapshot.Transactions.Select(x => x.Amount).Should().Contain(amount);
+            _fixture.Statement.Should().NotBeNull();
+            _fixture.Statement.Transactions.Should().NotBeNullOrEmpty();
+            _fixture.Statement.Transactions.Select(x => x.Amount).Should().Contain(amount);
         }
 
         [Fact]

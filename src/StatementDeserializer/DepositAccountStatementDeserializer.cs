@@ -10,7 +10,7 @@ namespace StatementDeserializer
 {
     public class DepositAccountStatementDeserializer : IStatementDeserializer
     {
-        public TransactionsSnapshot? DeserializeTdv(byte[] fileBytes)
+        public Statement? DeserializeTdv(byte[] fileBytes)
         {
             var content = Encoding.UTF8.GetString(fileBytes);
             var lines = content.Split(Environment.NewLine);
@@ -23,7 +23,7 @@ namespace StatementDeserializer
 
             var transactions = ParseTransactions(lines);
 
-            return new TransactionsSnapshot
+            return new Statement
             {
                 CardOrAccountNumber = account,
                 Transactions = transactions

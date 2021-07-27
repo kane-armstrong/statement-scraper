@@ -18,7 +18,7 @@ namespace WorkerService
     {
         private readonly ILogger<StatementSynchronizationHandler> _logger;
         private readonly IBankStatementWebScraper _bankStatementWebScraper;
-        private readonly ITransactionsSnapshotGenerator _snapshotGenerator;
+        private readonly IStatementFactory _snapshotGenerator;
         private readonly IStatementRunRepository _statementRuns;
         private readonly IAccountsRepository _accounts;
         private readonly ITransactionsRepository _transactions;
@@ -32,7 +32,7 @@ namespace WorkerService
         public StatementSynchronizationHandler(
             ILogger<StatementSynchronizationHandler> logger,
             IBankStatementWebScraper bankStatementWebScraper,
-            ITransactionsSnapshotGenerator snapshotGenerator,
+            IStatementFactory snapshotGenerator,
             IStatementRunRepository statementRuns,
             IAccountsRepository accounts,
             ITransactionsRepository transactions,
@@ -218,10 +218,10 @@ namespace WorkerService
             _logger.LogInformation("Finished loading transactions for account: {accountId} - {accountIdentifier}", account.Id, account.Identifier);
         }
 
-        private async Task<TransactionsSnapshot> LoadSnapshot(Account account, string file)
+        private async Task<Statement> LoadSnapshot(Account account, string file)
         {
             var bytes = await File.ReadAllBytesAsync(file);
-            var snapshot = _snapshotGenerator.Generate(bytes)[account.AccountType];
+            var snapshot = _snapshotGenerator.Create(bytes)[account.AccountType];
 
             if (snapshot == null)
                 throw new Exception("Failed to deserialize the statement. Found and loaded the file, but did not recognize its content.");
@@ -249,11 +249,11 @@ namespace WorkerService
             }
         }
 
-        private async Task ProcessSnapshot(Account account, StatementRun currentRun, TransactionsSnapshot snapshot, CancellationToken cancellationToken)
+        private async Task ProcessSnapshot(Account account, StatementRun currentRun, Statement statement, CancellationToken cancellationToken)
         {
-            _logger.LogDebug("Processing snapshot. Contains {count} transactions", currentRun.TransactionCount);
+            _logger.LogDebug("Processing statement. Contains {count} transactions", currentRun.TransactionCount);
 
-            foreach (var importedTransaction in snapshot.Transactions)
+            foreach (var importedTransaction in statement.Transactions)
             {
                 var transaction = new Transaction
                 {
