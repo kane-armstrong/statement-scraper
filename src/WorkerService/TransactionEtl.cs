@@ -62,7 +62,7 @@ namespace WorkerService
         {
             await _unitOfWork.Start(cancellationToken);
 
-            var existingFiles = Directory.GetFiles(_options.UnprocessedStatementDirectory);
+            var existingFiles = Directory.GetFiles(_unprocessedPath);
             if (existingFiles.Any())
             {
                 foreach (var existingFile in existingFiles)
@@ -71,16 +71,71 @@ namespace WorkerService
                 }
             }
 
-
             _unitOfWork.BeginTransaction();
-            var job = await CreateStatementRun(account, cancellationToken);
-            _unitOfWork.Commit();
+            var jobs = await _transactionImportJobs.ListJobs(account, cancellationToken);
+            var latestJob = jobs.Where(x => x.TransactionCount > 0 && x.AccountId == account.Id)
+                .OrderByDescending(x => x.ToDate).FirstOrDefault();
+            var fromDate = latestJob?.ToDate ?? DateTimeOffset.Now.AddYears(-3);
+            var job = new TransactionImportJob
+            {
+                AccountId = account.Id,
+                FromDate = fromDate,
+                ToDate = DateTimeOffset.Now,
+                TransactionCount = 0,
+                Status = "Pending"
+            };
+            await _transactionImportJobs.Save(job, cancellationToken); _unitOfWork.Commit();
 
             try
             {
                 _unitOfWork.BeginTransaction();
                 var file = await DownloadStatement(account, job, cancellationToken);
-                await ExtractTransactions(account, job, file, cancellationToken);
+
+                _logger.LogInformation("Processing file '{file}'", file);
+                var filename = Path.GetFileName(file);
+
+                var bytes = await File.ReadAllBytesAsync(file, cancellationToken);
+                var statement = _statementFactory.Create(bytes)[account.AccountType];
+
+                if (statement == null)
+                    throw new Exception("Failed to load the statement. Found the file, but did not recognize its content.");
+
+                job.SourceFileName = filename;
+                job.TransactionCount = statement.Transactions.Count;
+                account.CardOrAccountNumber = statement.CardOrAccountNumber;
+
+                _logger.LogDebug("Processing statement. Contains {count} transactions", job.TransactionCount);
+
+                foreach (var importedTransaction in statement.Transactions)
+                {
+                    var transaction = new Transaction
+                    {
+                        AccountId = account.Id,
+                        Amount = importedTransaction.Amount,
+                        Id = 0,
+                        CardNumber = importedTransaction.CardNumber,
+                        Description = importedTransaction.Description,
+                        Payee = importedTransaction.Payee,
+                        TransactionDate = importedTransaction.TransactionDate,
+                        TransactionType = importedTransaction.TransactionType,
+                        UniqueId = importedTransaction.UniqueId
+                    };
+                    await _transactions.Save(transaction, cancellationToken);
+                }
+
+                await _transactionImportJobs.Save(job, cancellationToken);
+                await _accounts.Save(account, cancellationToken);
+
+                if (_moveProcessedStatements)
+                {
+                    var newPath = $"{_processedPath}\\{filename}";
+                    _logger.LogDebug("Moving processed file {file} to path {path}", file, newPath);
+                    File.Move(file, newPath);
+                }
+
+                _logger.LogInformation("Finished loading transactions for account: {accountId} - {accountIdentifier}", account.Id,
+                    account.Identifier);
+
                 _unitOfWork.Commit();
             }
             catch (Exception e)
@@ -95,30 +150,6 @@ namespace WorkerService
             }
         }
 
-        private static void CleanWorkingDirectory(string path)
-        {
-
-        }
-
-        private async Task<TransactionImportJob> CreateStatementRun(Account account, CancellationToken cancellationToken)
-        {
-            var runs = await _transactionImportJobs.ListJobs(account, cancellationToken);
-            var latestRun = runs.Where(x => x.TransactionCount > 0 && x.AccountId == account.Id)
-                .OrderByDescending(x => x.ToDate).FirstOrDefault();
-            var fromDate = latestRun?.ToDate ?? DateTimeOffset.Now.AddYears(-3);
-
-            var currentRun = new TransactionImportJob
-            {
-                AccountId = account.Id,
-                FromDate = fromDate,
-                ToDate = DateTimeOffset.Now,
-                TransactionCount = 0,
-                Status = "Pending"
-            };
-            await _transactionImportJobs.Save(currentRun, cancellationToken);
-            return currentRun;
-        }
-
         private async Task<string> DownloadStatement(Account account, TransactionImportJob job, CancellationToken cancellationToken)
         {
             var downloadResult = await _bankStatementWebScraper.DownloadStatement(account, job.FromDate, job.ToDate);
@@ -130,81 +161,19 @@ namespace WorkerService
                     job.AccountId, job.FromDate.ToString("yyyy-MM-dd"), job.ToDate.ToString("yyyy-MM-dd"),
                     downloadResult.StatusMessage);
                 await _transactionImportJobs.Save(job, cancellationToken);
-                EnsureNoUnprocessedStatements();
+
+                var unexpectedFiles = Directory.GetFiles(_options.UnprocessedStatementDirectory);
+                if (unexpectedFiles.Any())
+                {
+                    _logger.LogError("Found unprocessed statements where none were expected.");
+                    throw new InvalidOperationException($"Scraper reported no downloaded files, but files were found in the directory. Path: '{_options.UnprocessedStatementDirectory}'");
+                }
+
                 return null;
             }
 
             var files = Directory.GetFiles(_options.UnprocessedStatementDirectory);
             return files.Single();
-        }
-
-        private async Task ExtractTransactions(Account account, TransactionImportJob job, string file, CancellationToken cancellationToken)
-        {
-            _logger.LogInformation("Processing file '{file}'", file);
-            var filename = Path.GetFileName(file);
-
-            var statement = await LoadStatement(account, file);
-
-            job.SourceFileName = filename;
-            job.TransactionCount = statement.Transactions.Count;
-            account.CardOrAccountNumber = statement.CardOrAccountNumber;
-
-            _logger.LogDebug("Processing statement. Contains {count} transactions", job.TransactionCount);
-            
-            await SaveTransactions(account, statement, cancellationToken);
-            await _transactionImportJobs.Save(job, cancellationToken);
-            await _accounts.Save(account, cancellationToken);
-
-            if (_moveProcessedStatements)
-            {
-                var newPath = $"{_processedPath}\\{filename}";
-                _logger.LogDebug("Moving processed file {file} to path {path}", file, newPath);
-                File.Move(file, newPath);
-            }
-
-            _logger.LogInformation("Finished loading transactions for account: {accountId} - {accountIdentifier}", account.Id,
-                account.Identifier);
-        }
-
-        private async Task<Statement> LoadStatement(Account account, string file)
-        {
-            var bytes = await File.ReadAllBytesAsync(file);
-            var statement = _statementFactory.Create(bytes)[account.AccountType];
-
-            if (statement == null)
-                throw new Exception("Failed to load the statement. Found the file, but did not recognize its content.");
-
-            return statement;
-        }
-
-        private async Task SaveTransactions(Account account, Statement statement, CancellationToken cancellationToken)
-        {
-            foreach (var importedTransaction in statement.Transactions)
-            {
-                var transaction = new Transaction
-                {
-                    AccountId = account.Id,
-                    Amount = importedTransaction.Amount,
-                    Id = 0,
-                    CardNumber = importedTransaction.CardNumber,
-                    Description = importedTransaction.Description,
-                    Payee = importedTransaction.Payee,
-                    TransactionDate = importedTransaction.TransactionDate,
-                    TransactionType = importedTransaction.TransactionType,
-                    UniqueId = importedTransaction.UniqueId
-                };
-                await _transactions.Save(transaction, cancellationToken);
-            }
-        }
-        
-        private void EnsureNoUnprocessedStatements()
-        {
-            var unexpectedFiles = Directory.GetFiles(_options.UnprocessedStatementDirectory);
-            if (unexpectedFiles.Any())
-            {
-                _logger.LogError("Found unprocessed statements where none were expected.");
-                throw new InvalidOperationException($"Scraper reported no downloaded files, but files were found in the directory. Path: '{_options.UnprocessedStatementDirectory}'");
-            }
         }
     }
 }
