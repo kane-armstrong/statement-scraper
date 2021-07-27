@@ -2,7 +2,7 @@
 
 namespace Contracts
 {
-    public class StatementRun
+    public class TransactionImportJob
     {
         public int Id { get; set; }
         public DateTimeOffset FromDate { get; set; }

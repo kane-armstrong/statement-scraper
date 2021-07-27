@@ -15,7 +15,7 @@ namespace StatementSaver
             services.TryAdd(ServiceDescriptor.Scoped<IUnitOfWork, UnitOfWork>());
             services.TryAdd(ServiceDescriptor.Scoped<IAccountsRepository, AccountsRepository>());
             services.TryAdd(ServiceDescriptor.Scoped<ITransactionsRepository, TransactionsRepository>());
-            services.TryAdd(ServiceDescriptor.Scoped<IStatementRunRepository, StatementRunRepository>());
+            services.TryAdd(ServiceDescriptor.Scoped<ITransactionImportJobRepository, TransactionImportJobRepository>());
             return services;
         }
     }

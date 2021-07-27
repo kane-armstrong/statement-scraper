@@ -1,4 +1,4 @@
-﻿CREATE TABLE [Staging].[StatementRun]
+﻿CREATE TABLE [Staging].[TransactionImportJob]
 (
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY(1, 1),
 	[FromDate] DATETIMEOFFSET NOT NULL,

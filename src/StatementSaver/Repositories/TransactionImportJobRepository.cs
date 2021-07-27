@@ -7,19 +7,19 @@ using System.Threading.Tasks;
 
 namespace StatementSaver.Repositories
 {
-    public class StatementRunRepository : IStatementRunRepository
+    public class TransactionImportJobRepository : ITransactionImportJobRepository
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public StatementRunRepository(IUnitOfWork unitOfWork)
+        public TransactionImportJobRepository(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
 
-        public async Task Save(StatementRun entity, CancellationToken cancellationToken)
+        public async Task Save(TransactionImportJob entity, CancellationToken cancellationToken)
         {
             const string sql = @"
-MERGE INTO [staging].[StatementRun] AS [target]
+MERGE INTO [staging].[TransactionImportJob] AS [target]
 USING 
 (
     SELECT
@@ -70,15 +70,15 @@ OUTPUT $action AS MergeAction, inserted.Id
                 entity.Id = result.Id;
         }
 
-        public async Task<IEnumerable<StatementRun>> GetRuns(Account account, CancellationToken cancellationToken)
+        public async Task<IEnumerable<TransactionImportJob>> ListJobs(Account account, CancellationToken cancellationToken)
         {
             const string sql = @"
 SELECT s.*
-FROM [Staging].[StatementRun] AS s
+FROM [Staging].[TransactionImportJob] AS s
 WHERE s.AccountId = @AccountId
 ";
 
-            return await _unitOfWork.Connection.QueryAsync<StatementRun>(sql, new
+            return await _unitOfWork.Connection.QueryAsync<TransactionImportJob>(sql, new
             {
                 AccountId = account.Id
             }, _unitOfWork.Transaction);
