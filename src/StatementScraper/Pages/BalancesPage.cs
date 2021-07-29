@@ -1,5 +1,4 @@
 ﻿using PuppeteerSharp;
-using StatementScraper.Extensions;
 using System;
 using System.Threading.Tasks;
 
@@ -9,6 +8,8 @@ namespace StatementScraper.Pages
     {
         private readonly Page _page;
 
+        private const string StatementsPageLink = "/fnc/1/goto/statements";
+
         public BalancesPage(Page page)
         {
             _page = page;
@@ -16,15 +17,10 @@ namespace StatementScraper.Pages
 
         public async Task<ExportStatementPage> GoToExportStatementPage()
         {
-            var statementsLink = await _page.GetElementOrDefault(ElementSelectors.StatementsPageLink);
-            if (statementsLink == null)
-            {
-                throw new Exception($"Failed to browse to statement export page: select '{ElementSelectors.StatementsPageLink}' was not found on the page.");
-            }
-
-            await statementsLink.ClickAsync();
-            await _page.WaitForNavigationAsync();
-
+            const int timeoutMs = 5000;
+            var uri = new Uri(_page.Url);
+            var exportStatementsPage = $"{uri.Scheme}://{uri.Host}{StatementsPageLink}";
+            await _page.GoToAsync(exportStatementsPage, timeoutMs);
             return new ExportStatementPage(_page);
         }
     }

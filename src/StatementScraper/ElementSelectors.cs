@@ -8,8 +8,6 @@ namespace StatementScraper
         public static string UserNameInput = Garble(".o`~p}ylxp");
         public static string PasswordInput = Garble(".{l~~z}o");
 
-        public static string StatementsPageLink = Garble(".~lpxpy~jwtyv");
-
         public static string AccountsSelectList = Garble(".]p|p~jLnnzyVp");
         public static string ExportFormatSelectList = Garble(".]p|p~jP{z}Qz}xl");
 
