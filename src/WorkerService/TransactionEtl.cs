@@ -84,12 +84,16 @@ namespace WorkerService
                 TransactionCount = 0,
                 Status = "Pending"
             };
-            await _transactionImportJobs.Save(job, cancellationToken); _unitOfWork.Commit();
+            await _transactionImportJobs.Save(job, cancellationToken);
+            _unitOfWork.Commit();
 
             try
             {
-                _unitOfWork.BeginTransaction();
                 var file = await DownloadStatement(account, job, cancellationToken);
+                if (file == null)
+                {
+                    return;
+                }
 
                 _logger.LogInformation("Processing file '{file}'", file);
                 var filename = Path.GetFileName(file);
@@ -99,6 +103,8 @@ namespace WorkerService
 
                 if (statement == null)
                     throw new Exception("Failed to load the statement. Found the file, but did not recognize its content.");
+
+                _unitOfWork.BeginTransaction();
 
                 job.SourceFileName = filename;
                 job.TransactionCount = statement.Transactions.Count;
@@ -160,7 +166,9 @@ namespace WorkerService
                 _logger.LogWarning("Failed to download statement for {account} for the period {start} to {end}. Reason: {reason}",
                     job.AccountId, job.FromDate.ToString("yyyy-MM-dd"), job.ToDate.ToString("yyyy-MM-dd"),
                     downloadResult.StatusMessage);
+                _unitOfWork.BeginTransaction();
                 await _transactionImportJobs.Save(job, cancellationToken);
+                _unitOfWork.Commit();
 
                 var unexpectedFiles = Directory.GetFiles(_options.UnprocessedStatementDirectory);
                 if (unexpectedFiles.Any())
