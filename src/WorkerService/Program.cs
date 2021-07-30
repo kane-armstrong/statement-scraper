@@ -33,14 +33,15 @@ namespace WorkerService
 
                     services.Configure<SqlConnectionFactoryOptions>(configuration.GetSection(nameof(SqlConnectionFactoryOptions)));
                     services.Configure<BankStatementWebScraperOptions>(configuration.GetSection(nameof(BankStatementWebScraperOptions)));
-                    services.Configure<StatementSynchronizationHandlerOptions>(configuration.GetSection(nameof(StatementSynchronizationHandlerOptions)));
+                    services.Configure<TransactionEtlOptions>(configuration.GetSection(nameof(TransactionEtlOptions)));
 
                     services.AddStatementDeserializer();
                     services.AddStatementSaver();
                     services.AddStatementScraper();
 
                     services.AddScoped<AccountEtl>();
-                    services.AddScoped<StatementSynchronizationHandler>();
+                    services.AddScoped<TransactionEtl>();
+                    services.AddScoped<EtlRunner>();
 
                     services.AddLogging(options =>
                     {

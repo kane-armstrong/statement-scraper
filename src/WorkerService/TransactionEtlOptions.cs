@@ -1,6 +1,6 @@
 ﻿namespace WorkerService
 {
-    public class StatementSynchronizationHandlerOptions
+    public class TransactionEtlOptions
     {
         public string UnprocessedStatementDirectory { get; set; }
         public bool MoveProcessedStatements { get; set; }

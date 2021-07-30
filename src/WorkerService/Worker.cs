@@ -30,18 +30,13 @@ namespace WorkerService
 
                 try
                 {
-                    _logger.LogInformation("Running account ETL");
-                    var accountEtl = scope.ServiceProvider.GetRequiredService<AccountEtl>();
-                    await accountEtl.Run(stoppingToken);
-                    _logger.LogInformation("Account ETL ran successfully");
+                    var thing = scope.ServiceProvider.GetRequiredService<EtlRunner>();
+                    await thing.Run(stoppingToken);
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, $"Account ETL encountered an error: {e.Message}");
+                    _logger.LogError(e, $"Transaction scraping failed: {e.Message}");
                 }
-
-                var handler = scope.ServiceProvider.GetRequiredService<StatementSynchronizationHandler>();
-                await handler.DownloadBankTransactions(stoppingToken);
 
                 _logger.LogInformation("Worker finished, next execution in {frequency} hours", FrequencyHours);
 

@@ -22,7 +22,7 @@ namespace WorkerService
         private readonly IAccountsRepository _accounts;
         private readonly ITransactionsRepository _transactions;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly StatementSynchronizationHandlerOptions _options;
+        private readonly TransactionEtlOptions _options;
 
         private readonly string _unprocessedPath;
         private readonly string _processedPath;
@@ -36,7 +36,7 @@ namespace WorkerService
             IAccountsRepository accounts,
             ITransactionsRepository transactions,
             IUnitOfWork unitOfWork,
-            IOptions<StatementSynchronizationHandlerOptions> options)
+            IOptions<TransactionEtlOptions> options)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _bankStatementWebScraper = bankStatementWebScraper ?? throw new ArgumentNullException(nameof(bankStatementWebScraper));
