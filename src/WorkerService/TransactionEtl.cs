@@ -78,6 +78,7 @@ namespace WorkerService
             var fromDate = latestJob?.ToDate ?? DateTimeOffset.Now.AddYears(-3);
             var job = new TransactionImportJob
             {
+                Id = Guid.NewGuid(),
                 AccountId = account.Id,
                 FromDate = fromDate,
                 ToDate = DateTimeOffset.Now,
@@ -118,7 +119,7 @@ namespace WorkerService
                     {
                         AccountId = account.Id,
                         Amount = importedTransaction.Amount,
-                        Id = 0,
+                        Id = Guid.NewGuid(),
                         CardNumber = importedTransaction.CardNumber,
                         Description = importedTransaction.Description,
                         Payee = importedTransaction.Payee,

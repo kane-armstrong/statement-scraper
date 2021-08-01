@@ -37,6 +37,7 @@ ON (
 WHEN NOT MATCHED THEN
     INSERT
     (
+        [Id],
         [FromDate],
         [ToDate],
         [AccountId],
@@ -46,6 +47,7 @@ WHEN NOT MATCHED THEN
     )
     VALUES 
     (
+        [source].[Id],
         [source].[FromDate],
         [source].[ToDate],
         [source].[AccountId],

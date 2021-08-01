@@ -64,6 +64,6 @@
     <Build Include="Schema\Staging.sql" />
     <Build Include="Tables\Staging\Account.sql" />
     <Build Include="Tables\Staging\Transaction.sql" />
-    <Build Include="Tables\Staging\StatementRun.sql" />
+    <Build Include="Tables\Staging\TransactionImportJob.sql" />
   </ItemGroup>
 </Project>

@@ -47,6 +47,7 @@ namespace WorkerService
                 {
                     account = new Account
                     {
+                        Id = Guid.NewGuid(),
                         AccountType = scrapedAccount.AccountType,
                         Identifier = scrapedAccount.Identifier
                     };

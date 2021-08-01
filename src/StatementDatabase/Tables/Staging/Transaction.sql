@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [Staging].[Transaction]
 (
-	[Id] INT NOT NULL PRIMARY KEY IDENTITY(1,1),
-	[AccountId] INT NOT NULL FOREIGN KEY REFERENCES [Staging].[Account](Id),
+	[Id] UNIQUEIDENTIFIER,
+	[AccountId] UNIQUEIDENTIFIER NOT NULL,
 	[TransactionDate] DATETIMEOFFSET NOT NULL,
 	[UniqueId] NVARCHAR(100) NOT NULL,
 	[TransactionType] NVARCHAR(100) NOT NULL,
@@ -9,5 +9,7 @@
 	[CardNumber] NVARCHAR(100) NULL,
 	[Description] NVARCHAR(500) NOT NULL,
 	[Amount] DECIMAL(10, 3) NOT NULL,
-    CONSTRAINT [UQ_UniqueId_AccountId] UNIQUE NONCLUSTERED ([UniqueId], [AccountId])
+    CONSTRAINT [UQ_UniqueId_AccountId] UNIQUE NONCLUSTERED ([UniqueId], [AccountId]),
+	CONSTRAINT [PK_Transaction_Id] PRIMARY KEY NONCLUSTERED (Id ASC) WITH (DATA_COMPRESSION = PAGE),
+	CONSTRAINT [FK_Transaction_AccountId] FOREIGN KEY (AccountId) REFERENCES Staging.Account (Id),
 )

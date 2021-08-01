@@ -32,6 +32,7 @@ MERGE INTO [staging].[Account] AS [target]
 USING 
 (
     SELECT
+        @Id                     AS [Id],
         @Identifier             AS [Identifier],
         @AccountType            AS [AccountType],
         @CardOrAccountNumber    AS [CardOrAccountNumber]
@@ -42,12 +43,14 @@ ON (
 WHEN NOT MATCHED THEN
     INSERT
     (
+        [Id],
         [Identifier],
         [AccountType],
         [CardOrAccountNumber]
     )
     VALUES 
     (
+        [source].[Id],
         [source].[Identifier],
         [source].[AccountType],
         [source].[CardOrAccountNumber]
@@ -62,6 +65,7 @@ OUTPUT $action AS MergeAction, inserted.Id;
             var results = await _unitOfWork.Connection.QueryAsync<MergeResult>(sql, new
             {
                 AccountType = (int)entity.AccountType,
+                entity.Id,
                 entity.Identifier,
                 entity.CardOrAccountNumber
             }, _unitOfWork.Transaction);

@@ -39,6 +39,7 @@ ON
 WHEN NOT MATCHED THEN
     INSERT
     (
+        [Id],
         [AccountId],
         [TransactionDate],
         [UniqueId],
@@ -50,6 +51,7 @@ WHEN NOT MATCHED THEN
     )
     VALUES 
     (
+        [source].[Id],
         [source].[AccountId],
         [source].[TransactionDate],
         [source].[UniqueId],
