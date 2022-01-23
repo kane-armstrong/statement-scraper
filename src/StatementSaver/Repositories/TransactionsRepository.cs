@@ -4,20 +4,20 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StatementSaver.Repositories
+namespace StatementSaver.Repositories;
+
+public class TransactionsRepository : ITransactionsRepository
 {
-    public class TransactionsRepository : ITransactionsRepository
+    private readonly IUnitOfWork _unitOfWork;
+
+    public TransactionsRepository(IUnitOfWork unitOfWork)
     {
-        private readonly IUnitOfWork _unitOfWork;
+        _unitOfWork = unitOfWork;
+    }
 
-        public TransactionsRepository(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
-
-        public async Task Save(Transaction entity, CancellationToken cancellationToken)
-        {
-            const string sql = @"
+    public async Task Save(Transaction entity, CancellationToken cancellationToken)
+    {
+        const string sql = @"
 MERGE INTO [Staging].[Transaction] AS [target]
 USING 
 (
@@ -74,9 +74,8 @@ WHEN MATCHED THEN
 OUTPUT $action AS MergeAction, inserted.Id;
 ;";
 
-            var results = await _unitOfWork.Connection.QueryAsync<MergeResult>(sql, entity, _unitOfWork.Transaction);
-            var result = results.Single();
-            entity.Id = result.Id;
-        }
+        var results = await _unitOfWork.Connection.QueryAsync<MergeResult>(sql, entity, _unitOfWork.Transaction);
+        var result = results.Single();
+        entity.Id = result.Id;
     }
 }

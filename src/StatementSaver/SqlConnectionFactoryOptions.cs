@@ -1,7 +1,6 @@
-﻿namespace StatementSaver
+﻿namespace StatementSaver;
+
+public class SqlConnectionFactoryOptions
 {
-    public class SqlConnectionFactoryOptions
-    {
-        public string ConnectionString { get; set; }
-    }
+    public string ConnectionString { get; set; }
 }

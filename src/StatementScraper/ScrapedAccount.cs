@@ -1,16 +1,15 @@
 ﻿using Contracts;
 
-namespace StatementScraper
-{
-    public class ScrapedAccount
-    {
-        public AccountType AccountType { get; }
-        public string Identifier { get; }
+namespace StatementScraper;
 
-        internal ScrapedAccount(AccountType accountType, string identifier)
-        {
-            AccountType = accountType;
-            Identifier = identifier;
-        }
+public class ScrapedAccount
+{
+    public AccountType AccountType { get; }
+    public string Identifier { get; }
+
+    internal ScrapedAccount(AccountType accountType, string identifier)
+    {
+        AccountType = accountType;
+        Identifier = identifier;
     }
 }

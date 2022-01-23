@@ -5,29 +5,29 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StatementSaver.Repositories
+namespace StatementSaver.Repositories;
+
+public class AccountsRepository : IAccountsRepository
 {
-    public class AccountsRepository : IAccountsRepository
+    private readonly IUnitOfWork _unitOfWork;
+
+    public AccountsRepository(IUnitOfWork unitOfWork)
     {
-        private readonly IUnitOfWork _unitOfWork;
+        _unitOfWork = unitOfWork;
+    }
 
-        public AccountsRepository(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
-
-        public async Task<IEnumerable<Account>> GetAccounts()
-        {
-            const string sql = @"
+    public async Task<IEnumerable<Account>> GetAccounts()
+    {
+        const string sql = @"
 SELECT *
 FROM [Staging].[Account]
 ";
-            return await _unitOfWork.Connection.QueryAsync<Account>(sql, null, _unitOfWork.Transaction);
-        }
+        return await _unitOfWork.Connection.QueryAsync<Account>(sql, null, _unitOfWork.Transaction);
+    }
 
-        public async Task Save(Account entity, CancellationToken cancellationToken)
-        {
-            const string sql = @"
+    public async Task Save(Account entity, CancellationToken cancellationToken)
+    {
+        const string sql = @"
 MERGE INTO [staging].[Account] AS [target]
 USING 
 (
@@ -62,15 +62,14 @@ WHEN MATCHED THEN
 OUTPUT $action AS MergeAction, inserted.Id;
 ;";
 
-            var results = await _unitOfWork.Connection.QueryAsync<MergeResult>(sql, new
-            {
-                AccountType = (int)entity.AccountType,
-                entity.Id,
-                entity.Identifier,
-                entity.CardOrAccountNumber
-            }, _unitOfWork.Transaction);
-            var result = results.Single();
-            entity.Id = result.Id;
-        }
+        var results = await _unitOfWork.Connection.QueryAsync<MergeResult>(sql, new
+        {
+            AccountType = (int)entity.AccountType,
+            entity.Id,
+            entity.Identifier,
+            entity.CardOrAccountNumber
+        }, _unitOfWork.Transaction);
+        var result = results.Single();
+        entity.Id = result.Id;
     }
 }

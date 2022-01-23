@@ -1,10 +1,9 @@
 ﻿using System;
 
-namespace StatementSaver
+namespace StatementSaver;
+
+internal class MergeResult
 {
-    internal class MergeResult
-    {
-        public string MergeAction { get; set; }
-        public Guid Id { get; set; }
-    }
+    public string MergeAction { get; set; }
+    public Guid Id { get; set; }
 }

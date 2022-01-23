@@ -2,10 +2,9 @@
 using System.Threading.Tasks;
 using Contracts;
 
-namespace StatementSaver.Repositories
+namespace StatementSaver.Repositories;
+
+public interface ITransactionsRepository
 {
-    public interface ITransactionsRepository
-    {
-        Task Save(Transaction entity, CancellationToken cancellationToken);
-    }
+    Task Save(Transaction entity, CancellationToken cancellationToken);
 }

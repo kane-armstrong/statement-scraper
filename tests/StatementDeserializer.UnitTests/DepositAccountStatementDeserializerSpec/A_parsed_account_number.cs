@@ -3,53 +3,52 @@ using StatementDeserializer.UnitTests.Resources.Content.DepositAccounts;
 using System;
 using Xunit;
 
-namespace StatementDeserializer.UnitTests.DepositAccountStatementDeserializerSpec
+namespace StatementDeserializer.UnitTests.DepositAccountStatementDeserializerSpec;
+
+public class A_parsed_account_number : IClassFixture<TsvFixture>
 {
-    public class A_parsed_account_number : IClassFixture<TsvFixture>
+    private readonly TsvFixture _fixture;
+
+    public A_parsed_account_number(TsvFixture fixture)
     {
-        private readonly TsvFixture _fixture;
+        _fixture = fixture;
+    }
 
-        public A_parsed_account_number(TsvFixture fixture)
-        {
-            _fixture = fixture;
-        }
+    [Fact]
+    public void identifies_account_number_correctly()
+    {
+        // +Arrange
+        const string expectedNumber = "99-9999-0000000-00-AccountName";
 
-        [Fact]
-        public void identifies_account_number_correctly()
-        {
-            // +Arrange
-            const string expectedNumber = "99-9999-0000000-00-AccountName";
+        // +Assert
+        _fixture.Statement.Should().NotBeNull();
+        _fixture.Statement.CardOrAccountNumber.Should().NotBeNull();
+        _fixture.Statement.CardOrAccountNumber.Should().Be(expectedNumber);
+    }
 
-            // +Assert
-            _fixture.Statement.Should().NotBeNull();
-            _fixture.Statement.CardOrAccountNumber.Should().NotBeNull();
-            _fixture.Statement.CardOrAccountNumber.Should().Be(expectedNumber);
-        }
+    [Fact]
+    public void throws_format_exception_when_bank_is_not_numeric()
+    {
+        // +Arrange
+        var sut = new DepositAccountStatementDeserializer();
 
-        [Fact]
-        public void throws_format_exception_when_bank_is_not_numeric()
-        {
-            // +Arrange
-            var sut = new DepositAccountStatementDeserializer();
+        // +Act
+        var exception = Assert.Throws<FormatException>(() => sut.DeserializeTdv(SampleDepositAccountReports.TdvAccountMalformedBank));
 
-            // +Act
-            var exception = Assert.Throws<FormatException>(() => sut.DeserializeTdv(SampleDepositAccountReports.TdvAccountMalformedBank));
+        // +Assert
+        exception.Message.Should().Be("Expected a numeric bank identifier; given 'oops'.");
+    }
 
-            // +Assert
-            exception.Message.Should().Be("Expected a numeric bank identifier; given 'oops'.");
-        }
+    [Fact]
+    public void throws_format_exception_when_branch_is_not_numeric()
+    {
+        // +Arrange
+        var sut = new DepositAccountStatementDeserializer();
 
-        [Fact]
-        public void throws_format_exception_when_branch_is_not_numeric()
-        {
-            // +Arrange
-            var sut = new DepositAccountStatementDeserializer();
+        // +Act
+        var exception = Assert.Throws<FormatException>(() => sut.DeserializeTdv(SampleDepositAccountReports.TdvAccountMalformedBranch));
 
-            // +Act
-            var exception = Assert.Throws<FormatException>(() => sut.DeserializeTdv(SampleDepositAccountReports.TdvAccountMalformedBranch));
-
-            // +Assert
-            exception.Message.Should().Be("Expected a numeric branch identifier; given 'oops'.");
-        }
+        // +Assert
+        exception.Message.Should().Be("Expected a numeric branch identifier; given 'oops'.");
     }
 }

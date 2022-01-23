@@ -1,8 +1,7 @@
-﻿namespace Contracts
+﻿namespace Contracts;
+
+public enum AccountType
 {
-    public enum AccountType
-    {
-        DepositAccount,
-        CardAccount
-    }
+    DepositAccount,
+    CardAccount
 }

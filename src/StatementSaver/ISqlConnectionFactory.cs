@@ -2,10 +2,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StatementSaver
+namespace StatementSaver;
+
+public interface ISqlConnectionFactory
 {
-    public interface ISqlConnectionFactory
-    {
-        Task<SqlConnection> GetOpenConnection(CancellationToken cancellationToken);
-    }
+    Task<SqlConnection> GetOpenConnection(CancellationToken cancellationToken);
 }

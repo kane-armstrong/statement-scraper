@@ -1,15 +1,14 @@
 ﻿using StatementDeserializer.UnitTests.Resources.Content.CardAccounts;
 
-namespace StatementDeserializer.UnitTests.CardAccountStatementDeserializerSpec
-{
-    public class TsvFixture
-    {
-        public readonly Statement Statement;
+namespace StatementDeserializer.UnitTests.CardAccountStatementDeserializerSpec;
 
-        public TsvFixture()
-        {
-            var sut = new CardAccountStatementDeserializer();
-            Statement = sut.DeserializeTdv(SampleCardAccountReports.BasicTdv);
-        }
+public class TsvFixture
+{
+    public readonly Statement Statement;
+
+    public TsvFixture()
+    {
+        var sut = new CardAccountStatementDeserializer();
+        Statement = sut.DeserializeTdv(SampleCardAccountReports.BasicTdv);
     }
 }

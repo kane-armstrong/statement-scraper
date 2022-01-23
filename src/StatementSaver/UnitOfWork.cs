@@ -3,55 +3,54 @@ using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StatementSaver
+namespace StatementSaver;
+
+public class UnitOfWork : IDisposable, IUnitOfWork
 {
-    public class UnitOfWork : IDisposable, IUnitOfWork
+    private readonly ISqlConnectionFactory _sqlConnectionFactory;
+
+    public IDbConnection Connection { get; private set; }
+    public IDbTransaction Transaction { get; private set; }
+
+    public UnitOfWork(ISqlConnectionFactory sqlConnectionFactory)
     {
-        private readonly ISqlConnectionFactory _sqlConnectionFactory;
+        _sqlConnectionFactory = sqlConnectionFactory ?? throw new ArgumentNullException(nameof(sqlConnectionFactory));
+    }
 
-        public IDbConnection Connection { get; private set; }
-        public IDbTransaction Transaction { get; private set; }
+    public async Task Start(CancellationToken cancellationToken)
+    {
+        if (Connection != null && Connection.State == ConnectionState.Open)
+            return;
 
-        public UnitOfWork(ISqlConnectionFactory sqlConnectionFactory)
-        {
-            _sqlConnectionFactory = sqlConnectionFactory ?? throw new ArgumentNullException(nameof(sqlConnectionFactory));
-        }
+        Connection = await _sqlConnectionFactory.GetOpenConnection(cancellationToken);
+    }
 
-        public async Task Start(CancellationToken cancellationToken)
-        {
-            if (Connection != null && Connection.State == ConnectionState.Open)
-                return;
+    public void BeginTransaction()
+    {
+        Transaction = Connection.BeginTransaction();
+    }
 
-            Connection = await _sqlConnectionFactory.GetOpenConnection(cancellationToken);
-        }
+    public void Commit()
+    {
+        if (Transaction == null)
+            throw new InvalidOperationException("There is no transaction to commit");
+        Transaction.Commit();
+        Transaction.Dispose();
+        Transaction = null;
+    }
 
-        public void BeginTransaction()
-        {
-            Transaction = Connection.BeginTransaction();
-        }
+    public void Rollback()
+    {
+        if (Transaction == null)
+            throw new InvalidOperationException("There is no transaction to rollback");
+        Transaction.Rollback();
+        Transaction.Dispose();
+        Transaction = null;
+    }
 
-        public void Commit()
-        {
-            if (Transaction == null)
-                throw new InvalidOperationException("There is no transaction to commit");
-            Transaction.Commit();
-            Transaction.Dispose();
-            Transaction = null;
-        }
-
-        public void Rollback()
-        {
-            if (Transaction == null)
-                throw new InvalidOperationException("There is no transaction to rollback");
-            Transaction.Rollback();
-            Transaction.Dispose();
-            Transaction = null;
-        }
-
-        public void Dispose()
-        {
-            Transaction?.Dispose();
-            Connection?.Dispose();
-        }
+    public void Dispose()
+    {
+        Transaction?.Dispose();
+        Connection?.Dispose();
     }
 }

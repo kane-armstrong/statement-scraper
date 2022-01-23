@@ -5,20 +5,20 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StatementSaver.Repositories
+namespace StatementSaver.Repositories;
+
+public class TransactionImportJobRepository : ITransactionImportJobRepository
 {
-    public class TransactionImportJobRepository : ITransactionImportJobRepository
+    private readonly IUnitOfWork _unitOfWork;
+
+    public TransactionImportJobRepository(IUnitOfWork unitOfWork)
     {
-        private readonly IUnitOfWork _unitOfWork;
+        _unitOfWork = unitOfWork;
+    }
 
-        public TransactionImportJobRepository(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
-
-        public async Task Save(TransactionImportJob entity, CancellationToken cancellationToken)
-        {
-            const string sql = @"
+    public async Task Save(TransactionImportJob entity, CancellationToken cancellationToken)
+    {
+        const string sql = @"
 MERGE INTO [staging].[TransactionImportJob] AS [target]
 USING 
 (
@@ -66,24 +66,23 @@ WHEN MATCHED THEN
 OUTPUT $action AS MergeAction, inserted.Id
 ;";
 
-            var results = await _unitOfWork.Connection.QueryAsync<MergeResult>(sql, entity, _unitOfWork.Transaction);
-            var result = results.SingleOrDefault();
-            if (result != null)
-                entity.Id = result.Id;
-        }
+        var results = await _unitOfWork.Connection.QueryAsync<MergeResult>(sql, entity, _unitOfWork.Transaction);
+        var result = results.SingleOrDefault();
+        if (result != null)
+            entity.Id = result.Id;
+    }
 
-        public async Task<IEnumerable<TransactionImportJob>> ListJobs(Account account, CancellationToken cancellationToken)
-        {
-            const string sql = @"
+    public async Task<IEnumerable<TransactionImportJob>> ListJobs(Account account, CancellationToken cancellationToken)
+    {
+        const string sql = @"
 SELECT s.*
 FROM [Staging].[TransactionImportJob] AS s
 WHERE s.AccountId = @AccountId
 ";
 
-            return await _unitOfWork.Connection.QueryAsync<TransactionImportJob>(sql, new
-            {
-                AccountId = account.Id
-            }, _unitOfWork.Transaction);
-        }
+        return await _unitOfWork.Connection.QueryAsync<TransactionImportJob>(sql, new
+        {
+            AccountId = account.Id
+        }, _unitOfWork.Transaction);
     }
 }

@@ -1,10 +1,9 @@
 ﻿using Contracts;
 using System.Collections.Generic;
 
-namespace StatementDeserializer
+namespace StatementDeserializer;
+
+public interface IStatementFactory
 {
-    public interface IStatementFactory
-    {
-        Dictionary<AccountType, Statement?> Create(byte[] bytes);
-    }
+    Dictionary<AccountType, Statement?> Create(byte[] bytes);
 }

@@ -1,10 +1,9 @@
 ﻿using Contracts;
 
-namespace StatementDeserializer
+namespace StatementDeserializer;
+
+public interface IStatementDeserializer
 {
-    public interface IStatementDeserializer
-    {
-        Statement? DeserializeTdv(byte[] fileBytes);
-        AccountType AccountType { get; }
-    }
+    Statement? DeserializeTdv(byte[] fileBytes);
+    AccountType AccountType { get; }
 }

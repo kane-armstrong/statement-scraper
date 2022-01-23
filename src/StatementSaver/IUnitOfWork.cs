@@ -2,15 +2,14 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StatementSaver
+namespace StatementSaver;
+
+public interface IUnitOfWork
 {
-    public interface IUnitOfWork
-    {
-        Task Start(CancellationToken cancellationToken);
-        IDbConnection Connection { get; }
-        IDbTransaction Transaction { get; }
-        void BeginTransaction();
-        void Commit();
-        void Rollback();
-    }
+    Task Start(CancellationToken cancellationToken);
+    IDbConnection Connection { get; }
+    IDbTransaction Transaction { get; }
+    void BeginTransaction();
+    void Commit();
+    void Rollback();
 }

@@ -1,11 +1,10 @@
 ﻿using Contracts;
 using System.Collections.Generic;
 
-namespace StatementDeserializer
+namespace StatementDeserializer;
+
+public class Statement
 {
-    public class Statement
-    {
-        public string CardOrAccountNumber { get; set; } = string.Empty;
-        public IList<Transaction> Transactions { get; set; } = new List<Transaction>();
-    }
+    public string CardOrAccountNumber { get; set; } = string.Empty;
+    public IList<Transaction> Transactions { get; set; } = new List<Transaction>();
 }
