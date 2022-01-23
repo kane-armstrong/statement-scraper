@@ -1,0 +1,12 @@
+﻿CREATE TABLE [Staging].[TransactionImportJob]
+(
+	[Id] UNIQUEIDENTIFIER,
+	[FromDate] DATETIMEOFFSET NOT NULL,
+	[ToDate] DATETIMEOFFSET NOT NULL,
+	[TransactionCount] INT NOT NULL DEFAULT(0),
+	[SourceFileName] NVARCHAR(255) NULL,
+	[AccountId] UNIQUEIDENTIFIER NOT NULL,
+	[Status] NVARCHAR(255) NOT NULL DEFAULT('Unknown'),
+	CONSTRAINT [PK_TransactionImportJob_Id] PRIMARY KEY NONCLUSTERED (Id ASC) WITH (DATA_COMPRESSION = PAGE),
+	CONSTRAINT [FK_TransactionImportJob_AccountId] FOREIGN KEY (AccountId) REFERENCES Staging.Account (Id),
+)

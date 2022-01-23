@@ -1,0 +1,18 @@
+<Project Sdk="MSBuild.Sdk.SqlProj/2.0.0-beta.1">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <SqlServerVersion>Sql150</SqlServerVersion>
+        <!-- For additional properties that can be set here, please refer to https://github.com/rr-wfm/MSBuild.Sdk.SqlProj#model-properties -->
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <!-- Refer to https://github.com/rr-wfm/MSBuild.Sdk.SqlProj#publishing-support for supported publishing options -->
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Remove="Schema\Staging.sql" />
+      <None Remove="Tables\Staging\Account.sql" />
+      <None Remove="Tables\Staging\Transaction.sql" />
+      <None Remove="Tables\Staging\TransactionImportJob.sql" />
+    </ItemGroup>
+</Project>
