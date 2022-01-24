@@ -30,7 +30,7 @@ public class EtlRunner
         await _accountEtl.Run(cancellationToken);
         _logger.LogInformation("Account ETL ran successfully");
 
-        var accounts = await _accounts.GetAccounts();
+        var accounts = await _accounts.GetAccounts(cancellationToken);
         foreach (var account in accounts)
         {
             _logger.LogInformation("Running transaction ETL for account: {CardOrAccountNumber}", account.CardOrAccountNumber);

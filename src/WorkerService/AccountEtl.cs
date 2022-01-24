@@ -31,7 +31,7 @@ public class AccountEtl
         _unitOfWork.BeginTransaction();
 
         var scrapedAccounts = await _bankStatementWebScraper.GetAccounts();
-        var savedAccounts = await _accounts.GetAccounts();
+        var savedAccounts = await _accounts.GetAccounts(cancellationToken);
 
         foreach (var scrapedAccount in scrapedAccounts)
         {

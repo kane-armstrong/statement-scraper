@@ -7,7 +7,6 @@ namespace StatementSaver.Repositories;
 
 public interface IAccountsRepository
 {
-    // TODO cancellationtoken
-    Task<IEnumerable<Account>> GetAccounts();
+    Task<IEnumerable<Account>> GetAccounts(CancellationToken cancellationToken);
     Task Save(Account entity, CancellationToken cancellationToken);
 }
