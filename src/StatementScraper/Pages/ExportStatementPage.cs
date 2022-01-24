@@ -99,13 +99,13 @@ internal class ExportStatementPage
     private string DetermineExportFailureReason()
     {
         var uri = new Uri(_page.Url);
-        var pageReportedError = HttpUtility.ParseQueryString(uri.Query).AllKeys.Any(x => x.Equals("failedExport", StringComparison.InvariantCultureIgnoreCase));
+        var pageReportedError = HttpUtility.ParseQueryString(uri.Query).AllKeys.Any(x => x != null && x.Equals("failedExport", StringComparison.InvariantCultureIgnoreCase));
         if (!pageReportedError)
         {
             return "Unknown";
         }
 
         var failureReason = HttpUtility.ParseQueryString(uri.Query)["errorMessage"];
-        return failureReason;
+        return failureReason ?? "Unable to parse error message";
     }
 }

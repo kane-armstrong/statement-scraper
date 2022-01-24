@@ -33,9 +33,9 @@ public class EtlRunner
         var accounts = await _accounts.GetAccounts();
         foreach (var account in accounts)
         {
-            _logger.LogInformation($"Running transaction ETL for account: {account.CardOrAccountNumber}");
+            _logger.LogInformation("Running transaction ETL for account: {CardOrAccountNumber}", account.CardOrAccountNumber);
             await _transactionEtl.Run(account, cancellationToken);
-            _logger.LogInformation($"Finished running transaction ETL for account: {account.CardOrAccountNumber}");
+            _logger.LogInformation("Finished running transaction ETL for account: {CardOrAccountNumber}", account.CardOrAccountNumber);
         }
     }
 }

@@ -9,8 +9,8 @@ public class UnitOfWork : IDisposable, IUnitOfWork
 {
     private readonly ISqlConnectionFactory _sqlConnectionFactory;
 
-    public IDbConnection Connection { get; private set; }
-    public IDbTransaction Transaction { get; private set; }
+    public IDbConnection? Connection { get; private set; }
+    public IDbTransaction? Transaction { get; private set; }
 
     public UnitOfWork(ISqlConnectionFactory sqlConnectionFactory)
     {
@@ -19,7 +19,7 @@ public class UnitOfWork : IDisposable, IUnitOfWork
 
     public async Task Start(CancellationToken cancellationToken)
     {
-        if (Connection != null && Connection.State == ConnectionState.Open)
+        if (Connection is { State: ConnectionState.Open })
             return;
 
         Connection = await _sqlConnectionFactory.GetOpenConnection(cancellationToken);
@@ -27,6 +27,10 @@ public class UnitOfWork : IDisposable, IUnitOfWork
 
     public void BeginTransaction()
     {
+        if (Connection == null)
+        {
+            throw new InvalidOperationException("Must open a connection before starting a transaction");
+        }
         Transaction = Connection.BeginTransaction();
     }
 

@@ -35,7 +35,7 @@ public class Worker : BackgroundService
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Transaction scraping failed: {e.Message}");
+                _logger.LogError(e, $"Transaction scraping failed");
             }
 
             _logger.LogInformation("Worker finished, next execution in {frequency} hours", FrequencyHours);

@@ -7,8 +7,8 @@ namespace StatementSaver;
 public interface IUnitOfWork
 {
     Task Start(CancellationToken cancellationToken);
-    IDbConnection Connection { get; }
-    IDbTransaction Transaction { get; }
+    IDbConnection? Connection { get; }
+    IDbTransaction? Transaction { get; }
     void BeginTransaction();
     void Commit();
     void Rollback();
