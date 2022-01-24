@@ -16,13 +16,14 @@ public class AccountsRepository : IAccountsRepository
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<IEnumerable<Account>> GetAccounts()
+    public async Task<IEnumerable<Account>> GetAccounts(CancellationToken cancellationToken)
     {
         const string sql = @"
 SELECT *
 FROM [Staging].[Account]
 ";
-        return await _unitOfWork.Connection.QueryAsync<Account>(sql, null, _unitOfWork.Transaction);
+        var command = new CommandDefinition(sql, null, _unitOfWork.Transaction, cancellationToken: cancellationToken);
+        return await _unitOfWork.Connection.QueryAsync<Account>(command);
     }
 
     public async Task Save(Account entity, CancellationToken cancellationToken)
@@ -62,13 +63,15 @@ WHEN MATCHED THEN
 OUTPUT $action AS MergeAction, inserted.Id;
 ;";
 
-        var results = await _unitOfWork.Connection.QueryAsync<MergeResult>(sql, new
+        var command = new CommandDefinition(sql, new
         {
             AccountType = (int)entity.AccountType,
             entity.Id,
             entity.Identifier,
             entity.CardOrAccountNumber
-        }, _unitOfWork.Transaction);
+        }, _unitOfWork.Transaction, cancellationToken: cancellationToken);
+
+        var results = await _unitOfWork.Connection.QueryAsync<MergeResult>(command);
         var result = results.Single();
         entity.Id = result.Id;
     }

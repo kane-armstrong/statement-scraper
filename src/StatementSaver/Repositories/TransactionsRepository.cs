@@ -74,7 +74,8 @@ WHEN MATCHED THEN
 OUTPUT $action AS MergeAction, inserted.Id;
 ;";
 
-        var results = await _unitOfWork.Connection.QueryAsync<MergeResult>(sql, entity, _unitOfWork.Transaction);
+        var command = new CommandDefinition(sql, entity, _unitOfWork.Transaction, cancellationToken: cancellationToken);
+        var results = await _unitOfWork.Connection.QueryAsync<MergeResult>(command);
         var result = results.Single();
         entity.Id = result.Id;
     }

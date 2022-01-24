@@ -66,7 +66,8 @@ WHEN MATCHED THEN
 OUTPUT $action AS MergeAction, inserted.Id
 ;";
 
-        var results = await _unitOfWork.Connection.QueryAsync<MergeResult>(sql, entity, _unitOfWork.Transaction);
+        var command = new CommandDefinition(sql, entity, _unitOfWork.Transaction, cancellationToken: cancellationToken);
+        var results = await _unitOfWork.Connection.QueryAsync<MergeResult>(command);
         var result = results.SingleOrDefault();
         if (result != null)
             entity.Id = result.Id;
@@ -80,9 +81,11 @@ FROM [Staging].[TransactionImportJob] AS s
 WHERE s.AccountId = @AccountId
 ";
 
-        return await _unitOfWork.Connection.QueryAsync<TransactionImportJob>(sql, new
+        var command = new CommandDefinition(sql, new
         {
             AccountId = account.Id
-        }, _unitOfWork.Transaction);
+        }, _unitOfWork.Transaction, cancellationToken: cancellationToken);
+
+        return await _unitOfWork.Connection.QueryAsync<TransactionImportJob>(command);
     }
 }
