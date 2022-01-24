@@ -12,8 +12,10 @@ public class SqlConnectionFactory : ISqlConnectionFactory
 
     public SqlConnectionFactory(IOptions<SqlConnectionFactoryOptions> options)
     {
-        _connectionString = options?.Value?.ConnectionString ??
-                            throw new ArgumentNullException(nameof(SqlConnectionFactoryOptions.ConnectionString));
+        _connectionString = options.Value?.ConnectionString ??
+                            throw new ArgumentNullException(
+                                nameof(SqlConnectionFactoryOptions.ConnectionString),
+                                "Connection string is required");
     }
 
     public async Task<SqlConnection> GetOpenConnection(CancellationToken cancellationToken)

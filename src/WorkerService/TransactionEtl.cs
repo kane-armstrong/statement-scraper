@@ -38,20 +38,28 @@ public class TransactionEtl
         IUnitOfWork unitOfWork,
         IOptions<TransactionEtlOptions> options)
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _bankStatementWebScraper = bankStatementWebScraper ?? throw new ArgumentNullException(nameof(bankStatementWebScraper));
-        _statementFactory = statementFactory ?? throw new ArgumentNullException(nameof(statementFactory));
-        _transactionImportJobs = transactionImportJobs ?? throw new ArgumentNullException(nameof(transactionImportJobs));
-        _accounts = accounts ?? throw new ArgumentNullException(nameof(accounts));
-        _transactions = transactions ?? throw new ArgumentNullException(nameof(transactions));
-        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-        _options = options.Value ?? throw new ArgumentNullException(nameof(options));
+        _logger = logger;
+        _bankStatementWebScraper = bankStatementWebScraper;
+        _statementFactory = statementFactory;
+        _transactionImportJobs = transactionImportJobs;
+        _accounts = accounts;
+        _transactions = transactions;
+        _unitOfWork = unitOfWork;
+        _options = options.Value;
 
-        _unprocessedPath = options.Value.UnprocessedStatementDirectory ?? throw new ArgumentNullException(nameof(options.Value.UnprocessedStatementDirectory));
+        _unprocessedPath = options.Value.UnprocessedStatementDirectory
+                           ?? throw new ArgumentNullException(
+                               nameof(options.Value.UnprocessedStatementDirectory),
+                               "Unprocessed statement directory is required");
+
         if (!Directory.Exists(_unprocessedPath))
             Directory.CreateDirectory(_unprocessedPath);
 
-        _processedPath = options.Value.ProcessedStatementDirectory ?? throw new ArgumentNullException(nameof(options.Value.ProcessedStatementDirectory));
+        _processedPath = options.Value.ProcessedStatementDirectory
+                         ?? throw new ArgumentNullException(
+                             nameof(options.Value.ProcessedStatementDirectory),
+                             "Processed statement directory is required");
+
         if (!Directory.Exists(_processedPath))
             Directory.CreateDirectory(_processedPath);
 

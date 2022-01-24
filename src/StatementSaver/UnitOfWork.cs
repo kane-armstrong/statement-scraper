@@ -14,7 +14,7 @@ public sealed class UnitOfWork : IDisposable, IUnitOfWork
 
     public UnitOfWork(ISqlConnectionFactory sqlConnectionFactory)
     {
-        _sqlConnectionFactory = sqlConnectionFactory ?? throw new ArgumentNullException(nameof(sqlConnectionFactory));
+        _sqlConnectionFactory = sqlConnectionFactory;
     }
 
     public async Task Start(CancellationToken cancellationToken)
