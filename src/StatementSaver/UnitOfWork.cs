@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace StatementSaver;
 
-public class UnitOfWork : IDisposable, IUnitOfWork
+public sealed class UnitOfWork : IDisposable, IUnitOfWork
 {
     private readonly ISqlConnectionFactory _sqlConnectionFactory;
 

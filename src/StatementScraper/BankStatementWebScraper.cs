@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace StatementScraper;
 
-public class BankStatementWebScraper : IBankStatementWebScraper, IAsyncDisposable, IDisposable
+public sealed class BankStatementWebScraper : IBankStatementWebScraper, IAsyncDisposable, IDisposable
 {
     private readonly BankStatementWebScraperOptions _options;
     private Browser? _browser;
