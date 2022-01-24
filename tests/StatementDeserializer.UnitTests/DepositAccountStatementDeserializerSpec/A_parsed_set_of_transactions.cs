@@ -37,7 +37,7 @@ public class A_parsed_set_of_transactions : IClassFixture<TsvFixture>
         _fixture.Statement.Transactions.Should().NotContainNulls();
     }
 
-    private static readonly DateTimeFormatInfo DefaultDateTimeFormat = new DateTimeFormatInfo
+    private static readonly DateTimeFormatInfo DefaultDateTimeFormat = new()
     {
         FullDateTimePattern = "yyyy/MM/dd"
     };

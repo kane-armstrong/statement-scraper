@@ -45,7 +45,7 @@ public class CardAccountStatementDeserializer : IStatementDeserializer
 
     private const string ReportDateTimeFormat = "yyyy/MM/dd";
 
-    private static readonly DateTimeFormatInfo ReportFormatInfo = new DateTimeFormatInfo
+    private static readonly DateTimeFormatInfo ReportFormatInfo = new()
     {
         FullDateTimePattern = ReportDateTimeFormat
     };

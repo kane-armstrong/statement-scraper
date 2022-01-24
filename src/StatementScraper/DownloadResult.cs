@@ -10,9 +10,9 @@ public class DownloadResult
     internal DownloadResult(bool successful, string statusMessage)
     {
         Successful = successful;
-        StatusMessage = statusMessage ?? throw new ArgumentNullException(nameof(statusMessage));
+        StatusMessage = statusMessage;
     }
 
-    public static DownloadResult Success => new DownloadResult(true, "Successful");
-    public static DownloadResult Failed(string reason) => new DownloadResult(false, reason);
+    public static DownloadResult Success => new(true, "Successful");
+    public static DownloadResult Failed(string reason) => new(false, reason);
 }
