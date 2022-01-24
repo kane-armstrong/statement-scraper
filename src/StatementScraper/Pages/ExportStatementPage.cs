@@ -39,7 +39,7 @@ internal class ExportStatementPage
             }
             else
             {
-                throw new Exception($"Unrecognized scrapedAccount type: {option}");
+                throw new ArgumentException($"Unrecognized scrapedAccount type: {option}", nameof(option));
             }
 
             items.Add(new ScrapedAccount(accountType, option));

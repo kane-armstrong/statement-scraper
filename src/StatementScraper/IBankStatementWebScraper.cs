@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 namespace StatementScraper;
 
-//TODO cancellationtoken?
 public interface IBankStatementWebScraper
 {
     Task<IEnumerable<ScrapedAccount>> GetAccounts();

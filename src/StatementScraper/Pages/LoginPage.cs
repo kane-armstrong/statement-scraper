@@ -36,7 +36,7 @@ internal class LoginPage
         var loginButtonAgain = await _page.GetElementOrDefault(ElementSelectors.LoginButton);
         if (loginButtonAgain != null)
         {
-            throw new Exception("Invalid username or password");
+            throw new InvalidOperationException("Invalid username or password");
         }
 
         return new BalancesPage(_page);
