@@ -8,15 +8,15 @@ internal static class StringExtensions
 {
     private const string QuotationMark = "\"";
 
-    public static string RemoveQuotationMarks(this string @this)
+    public static string RemoveQuotationMarks(this string s)
     {
-        return @this.Replace(QuotationMark, "");
+        return s.Replace(QuotationMark, "");
     }
 
     private const string ParenthesesPattern = "[()]";
 
-    public static string RemoveParentheses(this string @this)
+    public static string RemoveParentheses(this string s)
     {
-        return Regex.Replace(@this, ParenthesesPattern, "");
+        return Regex.Replace(s, ParenthesesPattern, "");
     }
 }
