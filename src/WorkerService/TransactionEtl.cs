@@ -70,52 +70,28 @@ public class TransactionEtl
     {
         await _unitOfWork.Start(cancellationToken);
 
-        var existingFiles = Directory.GetFiles(_unprocessedPath);
-        if (existingFiles.Any())
-        {
-            foreach (var existingFile in existingFiles)
-            {
-                File.Delete(existingFile);
-            }
-        }
+        CleanWorkingDirectory();
 
-        _unitOfWork.BeginTransaction();
-        var jobs = await _transactionImportJobs.ListJobs(account, cancellationToken);
-        var latestJob = jobs.Where(x => x.TransactionCount > 0 && x.AccountId == account.Id)
-            .OrderByDescending(x => x.ToDate).FirstOrDefault();
-        var fromDate = latestJob?.ToDate ?? DateTimeOffset.Now.AddYears(-3);
-        var job = new TransactionImportJob
-        {
-            Id = Guid.NewGuid(),
-            AccountId = account.Id,
-            FromDate = fromDate,
-            ToDate = DateTimeOffset.Now,
-            TransactionCount = 0,
-            Status = "Pending"
-        };
-        await _transactionImportJobs.Save(job, cancellationToken);
-        _unitOfWork.Commit();
+        var job = await CreateTransactionImportJob(account, cancellationToken);
 
         try
         {
-            var file = await DownloadStatement(account, job, cancellationToken);
-            if (file == null)
+            var statementFilePath = await DownloadStatement(account, job, cancellationToken);
+            if (statementFilePath == null)
             {
                 return;
             }
 
-            _logger.LogInformation("Processing file '{file}'", file);
-            var filename = Path.GetFileName(file);
+            var statement = await LoadStatement(account, cancellationToken, statementFilePath);
 
-            var bytes = await File.ReadAllBytesAsync(file, cancellationToken);
-            var statement = _statementFactory.Create(bytes)[account.AccountType];
+            _logger.LogInformation("Processing file '{file}'", statementFilePath);
 
             if (statement == null)
                 throw new Exception("Failed to load the statement. Found the file, but did not recognize its content.");
 
             _unitOfWork.BeginTransaction();
 
-            job.SourceFileName = filename;
+            job.SourceFileName = Path.GetFileName(statementFilePath);
             job.TransactionCount = statement.Transactions.Count;
             account.CardOrAccountNumber = statement.CardOrAccountNumber;
 
@@ -143,9 +119,9 @@ public class TransactionEtl
 
             if (_moveProcessedStatements)
             {
-                var newPath = $"{_processedPath}\\{filename}";
-                _logger.LogDebug("Moving processed file {file} to path {path}", file, newPath);
-                File.Move(file, newPath);
+                var newPath = $"{_processedPath}\\{job.SourceFileName}";
+                _logger.LogDebug("Moving processed file {file} to path {path}", statementFilePath, newPath);
+                File.Move(statementFilePath, newPath);
             }
 
             _logger.LogInformation("Finished loading transactions for account: {accountId} - {accountIdentifier}", account.Id,
@@ -163,6 +139,50 @@ public class TransactionEtl
             await _transactionImportJobs.Save(job, cancellationToken);
             _unitOfWork.Commit();
         }
+    }
+
+    private async Task<Statement?> LoadStatement(Account account, CancellationToken cancellationToken, string statementFilePath)
+    {
+        var bytes = await File.ReadAllBytesAsync(statementFilePath, cancellationToken);
+        var statement = _statementFactory.Create(bytes)[account.AccountType];
+        return statement;
+    }
+
+    private void CleanWorkingDirectory()
+    {
+        var unprocessedFiles = Directory.GetFiles(_unprocessedPath);
+        if (!unprocessedFiles.Any()) return;
+        foreach (var existingFile in unprocessedFiles)
+        {
+            File.Delete(existingFile);
+        }
+    }
+
+    private async Task<TransactionImportJob> CreateTransactionImportJob(Account account, CancellationToken cancellationToken)
+    {
+        _unitOfWork.BeginTransaction();
+
+        var jobs = await _transactionImportJobs.ListJobs(account, cancellationToken);
+        
+        var latestJob = jobs.Where(x => x.TransactionCount > 0 && x.AccountId == account.Id)
+            .OrderByDescending(x => x.ToDate).FirstOrDefault();
+
+        const int yearsToCapture = 3;
+        var fromDate = latestJob?.ToDate ?? DateTimeOffset.Now.AddYears(-yearsToCapture);
+
+        var job = new TransactionImportJob
+        {
+            Id = Guid.NewGuid(),
+            AccountId = account.Id,
+            FromDate = fromDate,
+            ToDate = DateTimeOffset.Now,
+            TransactionCount = 0,
+            Status = "Pending"
+        };
+
+        await _transactionImportJobs.Save(job, cancellationToken);
+        _unitOfWork.Commit();
+        return job;
     }
 
     private async Task<string> DownloadStatement(Account account, TransactionImportJob job, CancellationToken cancellationToken)
