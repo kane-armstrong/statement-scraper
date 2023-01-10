@@ -37,7 +37,9 @@ public sealed class UnitOfWork : IDisposable, IUnitOfWork
     public void Commit()
     {
         if (Transaction == null)
+        {
             throw new InvalidOperationException("There is no transaction to commit");
+        }
         Transaction.Commit();
         Transaction.Dispose();
         Transaction = null;
@@ -46,7 +48,9 @@ public sealed class UnitOfWork : IDisposable, IUnitOfWork
     public void Rollback()
     {
         if (Transaction == null)
+        {
             throw new InvalidOperationException("There is no transaction to rollback");
+        }
         Transaction.Rollback();
         Transaction.Dispose();
         Transaction = null;
