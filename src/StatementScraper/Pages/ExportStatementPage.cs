@@ -11,9 +11,9 @@ namespace StatementScraper.Pages;
 
 internal class ExportStatementPage
 {
-    private readonly Page _page;
+    private readonly IPage _page;
 
-    public ExportStatementPage(Page page)
+    public ExportStatementPage(IPage page)
     {
         _page = page;
     }

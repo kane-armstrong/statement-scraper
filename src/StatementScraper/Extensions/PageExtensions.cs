@@ -8,7 +8,7 @@ namespace StatementScraper.Extensions;
 
 internal static class PageExtensions
 {
-    public static async Task<ElementHandle> GetElement(this Page page, string name, int timeout = 5000)
+    public static async Task<IElementHandle> GetElement(this IPage page, string name, int timeout = 5000)
     {
         try
         {
@@ -23,7 +23,7 @@ internal static class PageExtensions
         }
     }
 
-    public static async Task<ElementHandle?> GetElementOrDefault(this Page page, string name, int timeout = 5000)
+    public static async Task<IElementHandle?> GetElementOrDefault(this IPage page, string name, int timeout = 5000)
     {
         try
         {
@@ -38,7 +38,7 @@ internal static class PageExtensions
         }
     }
 
-    public static async Task TypeInSelectedElement(this Page page, string selector, string input, int timeout = 5000)
+    public static async Task TypeInSelectedElement(this IPage page, string selector, string input, int timeout = 5000)
     {
         var element = await page.GetElement(selector, timeout);
         await element.TypeAsync(input);
@@ -46,7 +46,7 @@ internal static class PageExtensions
 
     // Using IAsyncEnumerable<T> here leads to errors when the caller is enumerating, this throws partway into
     // the enumeration, and the Page instance is shared between this and the caller.
-    public static async Task<IEnumerable<string>> GetSelectListOptions(this Page page, string selector)
+    public static async Task<IEnumerable<string>> GetSelectListOptions(this IPage page, string selector)
     {
         var selectElement = await page.GetElement(selector);
         var properties = await selectElement.GetPropertiesAsync();
@@ -64,7 +64,7 @@ internal static class PageExtensions
         return results;
     }
 
-    public static async Task SetDownloadPath(this Page page, string path)
+    public static async Task SetDownloadPath(this IPage page, string path)
     {
         await page.Client.SendAsync("Page.setDownloadBehavior", new
         {

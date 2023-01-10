@@ -6,11 +6,11 @@ namespace StatementScraper.Pages;
 
 internal class BalancesPage
 {
-    private readonly Page _page;
+    private readonly IPage _page;
 
     private const string StatementsPageLink = "/fnc/1/goto/statements";
 
-    public BalancesPage(Page page)
+    public BalancesPage(IPage page)
     {
         _page = page;
     }

@@ -9,9 +9,9 @@ internal class LoginPage
 {
     private const string Address = "s\u007f\u007f{~E::zywtyp9l~m9nz9y\u0085:l\u0080\u007fs";
 
-    private readonly Page _page;
+    private readonly IPage _page;
 
-    public LoginPage(Page page)
+    public LoginPage(IPage page)
     {
         _page = page;
     }

@@ -12,8 +12,8 @@ namespace StatementScraper;
 public sealed class BankStatementWebScraper : IBankStatementWebScraper, IAsyncDisposable, IDisposable
 {
     private readonly BankStatementWebScraperOptions _options;
-    private Browser? _browser;
-    private Page? _page;
+    private IBrowser? _browser;
+    private IPage? _page;
     private ExportStatementPage? _exportStatementsPage;
 
     public BankStatementWebScraper(IOptions<BankStatementWebScraperOptions> options)
