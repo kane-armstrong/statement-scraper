@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
+		<LangVersion>11.0</LangVersion>
         <OutputType>Exe</OutputType>
         <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
         <UserSecretsId>dotnet-StatementScraper.WorkerService-54F73139-AC3E-4363-AE1B-0F640C9B2561</UserSecretsId>
