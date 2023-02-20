@@ -30,7 +30,7 @@ internal class LoginPage
         await loginButton.ClickAsync();
         await _page.WaitForNavigationAsync(new NavigationOptions
         {
-            Timeout = 5000
+            Timeout = 30000
         });
 
         var loginButtonAgain = await _page.GetElementOrDefault(ElementSelectors.LoginButton);
